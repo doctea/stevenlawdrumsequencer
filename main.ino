@@ -120,30 +120,26 @@ void loop()
     tickcount++;
   }
 
-  if (tickcount % 6 == 0)
-  {                // every 6th clock ticker
-    beatcount++;   // we count the beatcounter + 1
-    tickcount = 0; // and reset the tickcounter
+  if (tickcount % 6 == 0) // every 6th clock ticker
+  {                
+    beatcount = tickcount % steps;  // find the loop position from the overall tickcount
 
-    if (beatcount == steps)
-    {                // every 16th beatcount
-      beatcount = 0; // we reset the beatcounter, to have 16 steps
-    }                //(i guess here is the problem: it should play every instrument simultaniously, but only the selected instrument is played)
-    if (pattern[INST][beatcount] == HIGH)
-    {                                 // if any of the instruments steps -at the point of beatcount- is high
-      trellis.noteOn(INST + 36, 100); // play the corresponding midi-note
+    // loop over each instrument
+    for (int i = 0 ; i < inst ; i++ ) {
+      if (pattern[i][beatcount] == HIGH) { // if the instrument is set to high at this point
+        trellis.noteOn(i + 36, 100); // play the corresponding midi-note
+      } else {
+        trellis.noteOff(i + 36, 0); // if its low, shut up
+        // todo: you probably want to replace this with an array to track how long the instrument has been playing and only send note off when both
+        // the note is already on AND a duration has elapsed 
+        // otherwise you are sending note offs immediately, and every step, unnecessarily
+      }                                
+      trellis.setPixelColor(beatcount - 1, pixelcolor[i]); // set the last played positionmarker to instrument color , here i tried to replace with different if statements with no luck
+      trellis.setPixelColor(beatcount, 24577);             // set positionmarker to green
+      if (beatcount == 0) {                                // additional line to handle the annoying 16th step color
+        trellis.setPixelColor(15, pixelcolor[i]); // here you have you stupid 16th step
+      }
     }
-    else
-    {
-      trellis.noteOff(INST + 36, 0); // if its low, shut up
-    }                                //(here probably lies an other problem as we delete the "active-step"marker here, also tried  if statements
-                                     //("active-step"marker is still saved in our array,tho)
 
-    trellis.setPixelColor(beatcount - 1, pixelcolor[INST]); // set the last played positionmarker to instrument color , here i tried to replace with different if statements with no luck
-    trellis.setPixelColor(beatcount, 24577);                // set positionmarker to green
-    if (beatcount == 0)
-    {                                              // additional line to handle the annoying 16th step color
-      trellis.setPixelColor(15, pixelcolor[INST]); // here you have you stupid 16th step
-    }
   }
 } // end of code. yehaaw
