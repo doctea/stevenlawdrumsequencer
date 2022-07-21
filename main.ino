@@ -23,6 +23,8 @@
 Adafruit_NeoTrellisM4 trellis = Adafruit_NeoTrellisM4();
 #define MIDI_CHANNEL 0 // default channel # is 0
 
+#define TICKS_PER_STEP 6
+
 int tickcount = 0;
 int beatcount = 0;
 int STEP;                 // variable for "step" selection
@@ -120,9 +122,9 @@ void loop()
     tickcount++;
   }
 
-  if (tickcount % 6 == 0) // every 6th clock ticker
+  if (tickcount % TICKS_PER_STEP == 0) // every 6th clock ticker
   {                
-    beatcount = tickcount % steps;  // find the loop position from the overall tickcount
+    beatcount = (tickcount/TICKS_PER_STEP) % steps;  // find the loop position from the overall tickcount
 
     // loop over each instrument
     for (int i = 0 ; i < inst ; i++ ) {
